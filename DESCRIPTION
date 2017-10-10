@@ -2,10 +2,10 @@ Package: ciTools
 Type: Package
 Title: Confidence or Prediction Intervals, Quantiles, and Probabilities
         for Statistical Models
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: c(person("John", "Haman", role = c("cre", "aut"),
     email = "mail@johnhaman.org"),
-    person("Matt", "Avery", role = "aut",
+    person("Matthew", "Avery", role = "aut",
     email = "mavery@ida.org"),
     person("Institute for Defense Analyses", role = "cph"))
 Maintainer: John Haman <mail@johnhaman.org>
@@ -15,7 +15,10 @@ Description: Functions to append confidence intervals, prediction intervals,
     This package has a data frame first syntax that allows for easy piping.
     Currently supported models include (log-) linear, (log-) linear mixed,
     and generalized linear models.
-Imports: arm, dplyr, lme4, magrittr, merTools, methods, stats, tibble
+Depends: R (>= 3.4.0)
+Imports: arm, boot, dplyr, lme4, magrittr, MASS, stats, tibble, utils
+Suggests: knitr, rmarkdown, tidyverse
+VignetteBuilder: rmarkdown, knitr
 URL: https://github.com/jthaman/ciTools
 BugReports: https://github.com/jthaman/ciTools/issues
 License: GPL (>= 3)
@@ -23,9 +26,9 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
 NeedsCompilation: no
-Packaged: 2017-08-07 13:27:08 UTC; jhaman
+Packaged: 2017-10-10 16:13:09 UTC; john
 Author: John Haman [cre, aut],
-  Matt Avery [aut],
+  Matthew Avery [aut],
   Institute for Defense Analyses [cph]
 Repository: CRAN
-Date/Publication: 2017-08-07 14:49:28 UTC
+Date/Publication: 2017-10-10 16:26:50 UTC

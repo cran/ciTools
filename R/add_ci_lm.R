@@ -42,7 +42,7 @@
 #'     made for each observation in tb
 #' @param log_response Logical. Default is \code{FALSE}. If
 #'     \code{TRUE}, confidence intervals will be generated for the
-#'     \emph{response level} of a log-linear model:  \eqn{\log(Y) =
+#'     \emph{response level} of a log-linear model:  \eqn{log(Y) =
 #'     X\beta + \epsilon}.
 #' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
@@ -80,6 +80,7 @@ add_ci.lm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", lo
             warning ("These CIs may have already been appended to your dataframe. Overwriting.")
         }
         out <- predict(fit, tb, interval = "confidence", level = 1 - alpha)
+
         if(is.null(tb[[yhatName]]))
             tb[[yhatName]] <- out[, 1]
         if (is.null(tb[[names[1]]]))

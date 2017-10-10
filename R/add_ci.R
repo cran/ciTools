@@ -41,9 +41,12 @@
 #' @importFrom magrittr %>%
 #' @importFrom dplyr bind_rows
 #' @importFrom tibble as_data_frame
-#' @importFrom merTools predictInterval
 #' @importFrom arm se.ranef
 #' @importFrom arm sim
+#' @importFrom MASS rnegbin
+#' @importFrom boot boot
+#' @importFrom boot boot.ci
+#' @importFrom utils packageVersion
 #'
 #' @param tb A tibble or data frame of new data. \code{tb} can be
 #'     the original data or new data.
@@ -98,5 +101,5 @@
 #' @export
 
 add_ci <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", ...){
-  UseMethod("add_ci", fit)
+    UseMethod("add_ci", fit)
 }

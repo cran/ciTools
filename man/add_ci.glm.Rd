@@ -5,7 +5,8 @@
 \title{Confidence Intervals for Generalized Linear Model Predictions}
 \usage{
 \method{add_ci}{glm}(tb, fit, alpha = 0.05, names = NULL,
-  yhatName = "pred", response = TRUE, type = "parametric", ...)
+  yhatName = "pred", response = TRUE, type = "parametric", nSims = 2000,
+  ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
@@ -21,16 +22,20 @@ level of the interval estimates.}
 named \code{names[1]} and the upper confidence bound will be
 named \code{names[2]}.}
 
-\item{yhatName}{A string. Name of the vector of predictions
-made for each observation in tb}
+\item{yhatName}{A string. Name of the vector of predictions made
+for each observation in tb}
 
 \item{response}{A logical. The default is \code{TRUE}. If
 \code{TRUE}, the confidence intervals will be determined for
 the expected response; if \code{FALSE}, confidence intervals
 will be made on the scale of the linear predictor.}
 
-\item{type}{A string. Currently \code{type = "parametric"} is the
-only supported method.}
+\item{type}{A string. Must be \code{type = "parametric"} or
+\code{type = "boot"}. \code{type} determines the method used to
+compute the confidence intervals.}
+
+\item{nSims}{An integer. Number of simulations to perform if the
+bootstrap method is used.}
 
 \item{...}{Additional arguments.}
 }
@@ -58,12 +63,14 @@ add_ci(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
 # Logistic regression
 fit2 <- glm(I(dist > 30) ~ speed, data = cars, family = "binomial")
 dat <- cbind(cars, I(cars$dist > 30))
-add_ci(dat, fit)
-add_ci(dat, fit, alpha = 0.5)
+# Form 95\% confidence intervals for the fit:
+add_ci(dat, fit2)
+# Form 50\% confidence intervals for the fit:
+add_ci(dat, fit2, alpha = 0.5)
 # Make confidence intervals on the scale of the linear predictor
-add_ci(dat, fit, alpha = 0.5, response = FALSE)
+add_ci(dat, fit2, alpha = 0.5, response = FALSE)
 # Add custom names to the confidence bounds
-add_ci(dat, fit, alpha = 0.5, names = c("lwr", "upr"))
+add_ci(dat, fit2, alpha = 0.5, names = c("lwr", "upr"))
 
 
 }
