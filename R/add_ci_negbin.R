@@ -15,20 +15,24 @@
 ## You should have received a copy of the GNU General Public License
 ## along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Confidence Intervals for Generalized Linear Model Predictions
+#' Confidence Intervals for Negative Binomial Linear Model Predictions
 #'
 #' This function is one of the methods for \code{add_ci}, and is
 #' called automatically when \code{add_ci} is used on a \code{fit} of
-#' class \code{glm}. Confidence Intervals are determined by making an
-#' interval on the scale of the linear predictor, then applying the
-#' inverse link function from the model fit to transform the linear
-#' level confidence intervals to the response level. If the argument
-#' \code{type = "boot"} is used, then bias corrected and accelerated
-#' bootstrap confidence intervals are formed instead of parametric
-#' intervals.
+#' class \code{negbin}.
+#'
+#' The default link function is log-link. Confidence Intervals are
+#' determined by making an interval on the scale of the linear
+#' predictor, then applying the inverse link function from the model
+#' fit to transform the linear level confidence intervals to the
+#' response level. Alternatively, bootstrap confidence intervals may
+#' be formed. The bootstrap intervals are formed by first resampling
+#' cases from the data frame used to calculate \code{fit}, then bias
+#' corrected and accelerated intervals are calculated. See
+#' \code{boot::boot.ci} for more details.
 #'
 #' @param tb A tibble or data frame of new data.
-#' @param fit An object of class \code{glm}.
+#' @param fit An object of class \code{negbin}.
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
 #' @param names \code{NULL} or character vector of length two. If
@@ -52,38 +56,24 @@
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     confidence bounds attached.
 #'
-#' @seealso \code{\link{add_pi.glm}} for prediction intervals for
-#'     \code{glm} objects, \code{\link{add_probs.glm}} for conditional
-#'     probabilities of \code{glm} objects, and
-#'     \code{\link{add_quantile.glm}} for response quantiles of
-#'     \code{glm} objects.
+#' @seealso \code{\link{add_pi.negbin}} for prediction intervals for
+#'     \code{negbin} objects, \code{\link{add_probs.negbin}} for conditional
+#'     probabilities of \code{negbin} objects, and
+#'     \code{\link{add_quantile.negbin}} for response quantiles of
+#'     \code{negbin} objects.
 #'
 #' @examples
-#' # Poisson regression
-#' fit <- glm(dist ~ speed, data = cars, family = "poisson")
-#' add_ci(cars, fit)
-#' # Try a different confidence level
-#' add_ci(cars, fit, alpha = 0.5)
-#' # Add custom names to the confidence bounds (may be useful for plotting)
-#' add_ci(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
-#' 
-#' # Logistic regression
-#' fit2 <- glm(I(dist > 30) ~ speed, data = cars, family = "binomial")
-#' dat <- cbind(cars, I(cars$dist > 30))
-#' # Form 95% confidence intervals for the fit:
-#' add_ci(dat, fit2)
-#' # Form 50% confidence intervals for the fit:
-#' add_ci(dat, fit2, alpha = 0.5)
-#' # Make confidence intervals on the scale of the linear predictor
-#' add_ci(dat, fit2, alpha = 0.5, response = FALSE)
-#' # Add custom names to the confidence bounds
-#' add_ci(dat, fit2, alpha = 0.5, names = c("lwr", "upr"))
-#'
+#' x1 <- rnorm(300, mean = 1)
+#' y <- MASS::rnegbin(n = 300, mu = exp(5 + 0.5 * x1), theta = 2)
+#' df <- data.frame(x1 = x1, y = y)
+#' fit <- MASS::glm.nb(y ~ x1, data = df)
+#' df <- df[sample(100),]
+#' add_ci(df, fit, names = c("lcb", "ucb"))
 #'
 #' @export
 
-add_ci.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
-                       response = TRUE, type = "parametric", nSims = 2000, ...){
+add_ci.negbin <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
+                          response = TRUE, type = "parametric", nSims = 2000, ...){
 
     if (!(fit$converged))
         warning ("coverage probabilities may be inaccurate if the model did not converge")
@@ -96,21 +86,18 @@ add_ci.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
     }
     
     if (type == "boot")
-        boot_ci_glm(tb, fit, alpha, names, yhatName, response, nSims)
+        boot_ci_negbin(tb, fit, alpha, names, yhatName, response, nSims)
     else if (type == "parametric")
-        parametric_ci_glm(tb, fit, alpha, names, yhatName, response)
+        parametric_ci_negbin(tb, fit, alpha, names, yhatName, response)
     else 
         stop("Incorrect interval type specified!")
 
 }
 
-parametric_ci_glm <- function(tb, fit, alpha, names, yhatName, response){
+parametric_ci_negbin <- function(tb, fit, alpha, names, yhatName, response){
     out <- predict(fit, tb, se.fit = TRUE, type = "link")
 
-    if (fit$family$family %in% c("binomial", "poisson")) 
-        crit_val <- qnorm(p = 1 - alpha/2, mean = 0, sd = 1)
-    else
-        crit_val <- qt(p = 1 - alpha/2, df = fit$df.residual)
+    crit_val <- qt(p = 1 - alpha/2, df = fit$df.residual)
 
     inverselink <- fit$family$linkinv
 
@@ -119,8 +106,6 @@ parametric_ci_glm <- function(tb, fit, alpha, names, yhatName, response){
         upr <- inverselink(out$fit + crit_val * out$se.fit)
         lwr <- inverselink(out$fit - crit_val * out$se.fit)
         if(fit$family$link %in% c("inverse", "1/mu^2")){
-            ## need to do something like this for any decreasing link
-            ## function.
             upr1 <- lwr
             lwr <- upr
             upr <- upr1
@@ -138,15 +123,16 @@ parametric_ci_glm <- function(tb, fit, alpha, names, yhatName, response){
     tibble::as_data_frame(tb)
 }
 
-boot_fit <- function(data, tb, fit, lvl, indices){
+
+boot_fit_nb<- function(data, tb, fit, lvl, indices){
     data_temp <- data[indices,]
-    form <- fit$formula
-    fam <- fit$family
-    temp_fit <- glm(form, data = data_temp, family = fam)
+    form <- fit$call[2]
+    temp_fit <- glm.nb(form, data = data_temp)
     predict(temp_fit, newdata = tb, type = lvl)
 }
 
-boot_ci_glm <- function(tb, fit, alpha, names, yhatName, response, nSims){
+boot_ci_negbin <- function(tb, fit, alpha, names, yhatName, response, nSims){
+
     if (response){
         lvl <- "response"
     }
@@ -157,11 +143,12 @@ boot_ci_glm <- function(tb, fit, alpha, names, yhatName, response, nSims){
     out <- predict(fit, tb, type = lvl)
 
     boot_obj <- boot(data = fit$model,
-                     statistic = boot_fit,
+                     statistic = boot_fit_nb,
                      R = nSims,
                      fit = fit,
-                     lvl = lvl,
-                     tb = tb)
+                     tb = tb,
+                     lvl = lvl)
+
 
     temp_mat <- matrix(0, ncol = 2, nrow = NROW(tb))
 
@@ -174,10 +161,6 @@ boot_ci_glm <- function(tb, fit, alpha, names, yhatName, response, nSims){
 
     lwr <- temp_mat[,1]
     upr <- temp_mat[,2]
-
-    ## raw_boot <- boot_obj$t
-    ## lwr <- apply(raw_boot, 2, FUN = quantile, probs = alpha / 2)
-    ## upr <- apply(raw_boot, 2, FUN = quantile, probs = 1 - alpha / 2)
 
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- out
