@@ -31,11 +31,14 @@
 #'   \item \code{\link{add_quantile.lm}} for linear regression response quantiles
 #'   \item \code{\link{add_quantile.glm}} for generalized linear regression response quantiles
 #'   \item \code{\link{add_quantile.lmerMod}} for linear mixed models response quantiles
+#'   \item \code{\link{add_quantile.glmerMod}} for generalized linear mixed models response quantiles
+#'   \item \code{\link{add_quantile.survreg}} for accelerated failure time response quantiles
 #' }
 #'
-#' Note: the quantiles that \code{add_quantile} calculates are on the
-#' distribution of \eqn{Y|x}, not \eqn{E[Y|x]}. That is, they use the
-#' same distribution that determines a prediction interval, not the
+#' Note: Except in \code{add_ci.survreg}, the quantiles that
+#' \code{add_quantile} calculates are on the distribution of
+#' \eqn{Y|x}, not \eqn{E[Y|x]}. That is, they use the same
+#' distribution that determines a prediction interval, not the
 #' distribution that determines a confidence interval.
 
 #' @param tb A tibble or data frame of new data.
@@ -51,7 +54,7 @@
 #' @param ... Additional arguments
 #' @return A tibble, \code{tb}, with predicted values and
 #'     level-\emph{p} quantiles attached.
-#' 
+#'
 #' @examples
 #'
 #' # Fit a linear model
@@ -77,10 +80,9 @@
 #' @seealso \code{\link{add_ci}} for confidence intervals,
 #'     \code{\link{add_probs}} for response level probabilities, and
 #'     \code{\link{add_pi}} for prediction intervals
-#' 
+#'
 #' @export
 
-add_quantile <- function(tb, fit, p, name = NULL, yhatName = "pred", ...){
-  UseMethod("add_quantile", fit)
+add_quantile <- function(tb, fit, p = 0.5, name = NULL, yhatName = "pred", ...){
+    UseMethod("add_quantile", fit)
 }
-

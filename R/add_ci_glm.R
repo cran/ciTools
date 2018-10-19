@@ -19,13 +19,12 @@
 #'
 #' This function is one of the methods for \code{add_ci}, and is
 #' called automatically when \code{add_ci} is used on a \code{fit} of
-#' class \code{glm}. Confidence Intervals are determined by making an
-#' interval on the scale of the linear predictor, then applying the
-#' inverse link function from the model fit to transform the linear
-#' level confidence intervals to the response level. If the argument
-#' \code{type = "boot"} is used, then bias corrected and accelerated
-#' bootstrap confidence intervals are formed instead of parametric
-#' intervals.
+#' class \code{glm}. The default method calculates confidence
+#' intervals by making an interval on the scale of the linear
+#' predictor, then applying the inverse link function from the model
+#' fit to transform the linear level confidence intervals to the
+#' response level. Alternatively, confidence intervals may be
+#' calcuated through a nonparametric bootstrap method.
 #'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}.
@@ -36,11 +35,11 @@
 #'     \code{add_ci}, otherwise, the lower confidence bound will be
 #'     named \code{names[1]} and the upper confidence bound will be
 #'     named \code{names[2]}.
-#' @param yhatName A string. Name of the vector of predictions made
-#'     for each observation in tb
-#' @param type A string. Must be \code{type = "parametric"} or
-#'     \code{type = "boot"}. \code{type} determines the method used to
-#'     compute the confidence intervals.
+#' @param yhatName A character vector of length one. Name of the
+#'     vector of predictions made for each observation in tb
+#' @param type A character vector of length one. Must be \code{type =
+#'     "parametric"} or \code{type = "boot"}. \code{type} determines
+#'     the method used to compute the confidence intervals.
 #' @param response A logical. The default is \code{TRUE}. If
 #'     \code{TRUE}, the confidence intervals will be determined for
 #'     the expected response; if \code{FALSE}, confidence intervals
@@ -48,7 +47,7 @@
 #' @param nSims An integer. Number of simulations to perform if the
 #'     bootstrap method is used.
 #' @param ... Additional arguments.
-#' 
+#'
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     confidence bounds attached.
 #'
@@ -66,7 +65,7 @@
 #' add_ci(cars, fit, alpha = 0.5)
 #' # Add custom names to the confidence bounds (may be useful for plotting)
 #' add_ci(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
-#' 
+#'
 #' # Logistic regression
 #' fit2 <- glm(I(dist > 30) ~ speed, data = cars, family = "binomial")
 #' dat <- cbind(cars, I(cars$dist > 30))
@@ -94,12 +93,12 @@ add_ci.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
     if ((names[1] %in% colnames(tb))) {
         warning ("These CIs may have already been appended to your dataframe. Overwriting.")
     }
-    
+
     if (type == "boot")
         boot_ci_glm(tb, fit, alpha, names, yhatName, response, nSims)
     else if (type == "parametric")
         parametric_ci_glm(tb, fit, alpha, names, yhatName, response)
-    else 
+    else
         stop("Incorrect interval type specified!")
 
 }
@@ -107,7 +106,7 @@ add_ci.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
 parametric_ci_glm <- function(tb, fit, alpha, names, yhatName, response){
     out <- predict(fit, tb, se.fit = TRUE, type = "link")
 
-    if (fit$family$family %in% c("binomial", "poisson")) 
+    if (fit$family$family %in% c("binomial", "poisson"))
         crit_val <- qnorm(p = 1 - alpha/2, mean = 0, sd = 1)
     else
         crit_val <- qt(p = 1 - alpha/2, df = fit$df.residual)

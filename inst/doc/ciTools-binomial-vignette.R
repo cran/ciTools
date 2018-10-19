@@ -23,11 +23,11 @@ tbProb
 glm(prob ~ x, data = tbProb, family = "binomial", weights = n) %>% tidy()
 
 ## ----echo = F------------------------------------------------------------
-                                        #+ echo = F
 get_box <- function(myRow){
     tibble(x = rep(myRow$x, myRow$n),
            y = c(rep(1, myRow$y), rep(0, myRow$n - myRow$y)))
 }
+
 out <- NULL
 for(i in 1:nrow(tb)){
   out <- bind_rows(out, get_box(tb[i,]))
@@ -43,5 +43,5 @@ glm(y ~ x, data = tbTall, family = "binomial") %>% tidy()
 fit <- glm(y/n ~ x, data = tb, family = "binomial", weights = n)
 
 ## ------------------------------------------------------------------------
-add_quantile(tb, fit, p = 0.9) 
+add_quantile(tb, fit, p = 0.9)
 

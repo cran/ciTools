@@ -5,8 +5,8 @@
 \title{Confidence Intervals for Generalized Linear Model Predictions}
 \usage{
 \method{add_ci}{glm}(tb, fit, alpha = 0.05, names = NULL,
-  yhatName = "pred", response = TRUE, type = "parametric", nSims = 2000,
-  ...)
+  yhatName = "pred", response = TRUE, type = "parametric",
+  nSims = 2000, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
@@ -49,10 +49,7 @@ called automatically when \code{add_ci} is used on a \code{fit} of
 class \code{glm}. Confidence Intervals are determined by making an
 interval on the scale of the linear predictor, then applying the
 inverse link function from the model fit to transform the linear
-level confidence intervals to the response level. If the argument
-\code{type = "boot"} is used, then bias corrected and accelerated
-bootstrap confidence intervals are formed instead of parametric
-intervals.
+level confidence intervals to the response level.
 }
 \examples{
 # Poisson regression

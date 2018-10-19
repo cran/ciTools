@@ -86,7 +86,7 @@ df_ints <- add_ci(df, fit, names = c("lcb", "ucb"), alpha = 0.05) %>%
 
 ## ----fig.width = 6, fig.heither = 4, fig.align="center"------------------
 ggplot(df_ints, aes(x = x, y = y)) +
-    ggtitle("Quasi-Poisson Regression", subtitle = "Model fit (black line), with Prediction intervals (gray), Confidence intervals (dark gray)") + 
+    ggtitle("Quasipoisson Regression", subtitle = "Model fit (black line), with Prediction intervals (gray), Confidence intervals (dark gray)") + 
     geom_point(size = 2) +
     geom_line(aes(x = x, y = pred), size = 1.2) +
     geom_ribbon(aes(ymin = lcb, ymax = ucb), alpha = 0.4) +
