@@ -2,7 +2,7 @@ Package: ciTools
 Type: Package
 Title: Confidence or Prediction Intervals, Quantiles, and Probabilities
         for Statistical Models
-Version: 0.5.0
+Version: 0.5.1
 Authors@R: c(person("John", "Haman", role = c("cre", "aut"),
     email = "jhaman@ida.org"),
     person("Matthew", "Avery", role = "aut",
@@ -19,7 +19,7 @@ Description: Functions to append confidence intervals, prediction intervals,
 Depends: R (>= 3.4.0)
 Imports: arm, boot, dplyr, lme4, magrittr, MASS, methods, stats,
         survival, tibble, utils
-Suggests: broom, knitr, rmarkdown, tidyverse
+Suggests: broom, here, knitr, rmarkdown, SPREDA, tidyverse
 VignetteBuilder: rmarkdown, knitr
 URL: https://github.com/jthaman/ciTools
 BugReports: https://github.com/jthaman/ciTools/issues
@@ -28,9 +28,9 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.0
 NeedsCompilation: no
-Packaged: 2018-10-19 21:37:38 UTC; jhaman
+Packaged: 2019-01-08 21:52:11 UTC; jhaman
 Author: John Haman [cre, aut],
   Matthew Avery [aut],
   Institute for Defense Analyses [cph]
 Repository: CRAN
-Date/Publication: 2018-10-19 23:00:03 UTC
+Date/Publication: 2019-01-08 22:30:18 UTC
