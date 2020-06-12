@@ -1,11 +1,11 @@
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE---------------------------------------------------------
 library(tidyverse)
 library(knitr)
 library(ciTools)
 library(here)
 set.seed(20180925)
 
-## ----include = FALSE, cache = TRUE---------------------------------------
+## ----include = FALSE, cache = TRUE--------------------------------------------
 library(SPREDA)
 car <- rep(c("suv", "sedan"), 25)
 temp <- seq(40,100, length.out = 50)
@@ -17,28 +17,28 @@ dat <- data.frame(temp = temp,
                   time = time,
                   failure = failure)
 
-## ----cache = TRUE--------------------------------------------------------
+## ----cache = TRUE-------------------------------------------------------------
 kable(head(dat))
 
 
-## ----cache = TRUE, fig.width = 5, fig.height= 5, warning = FALSE---------
+## ----cache = TRUE, fig.width = 5, fig.height= 5, warning = FALSE--------------
 ggplot(dat, aes(x = temp, y = time)) +
     geom_point(aes(color = factor(failure)))+
     ggtitle("Censored obs. in red") +
     theme_bw()
 
-## ----cache = TRUE--------------------------------------------------------
+## ----cache = TRUE-------------------------------------------------------------
 (fit <- survreg(Surv(time, failure) ~ temp + car, data = dat)) ## weibull dist is default
 
-## ----cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE--------
+## ----cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE-------------
 with_ints <- ciTools::add_ci(dat,fit, names = c("lcb", "ucb")) %>%
     ciTools::add_pi(fit, names = c("lpb", "upb"))
 
 
-## ----cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE--------
+## ----cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE-------------
 kable(head(with_ints))
 
-## ----cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE--------
+## ----cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE-------------
 ggplot(with_ints, aes(x = temp, y = time)) +
     geom_point(aes(color = car)) +
     facet_wrap(~car)+
@@ -51,12 +51,12 @@ ggplot(with_ints, aes(x = temp, y = time)) +
     geom_ribbon(aes(ymin = lpb, ymax = upb), alpha = 0.1)
 
 
-## ----cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE--------
+## ----cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE-------------
 probs <- ciTools::add_probs(dat, fit, q = 500,
                             name = c("prob", "lcb", "ucb"),
                             comparison = ">")
 
-## ----cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE--------
+## ----cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE-------------
 ggplot(probs, aes(x = temp, y = prob)) +
     ggtitle("Estimated prob. of avg. spring lasting longer than 500 hrs.") +
     ylim(c(0,1)) +
@@ -66,11 +66,11 @@ ggplot(probs, aes(x = temp, y = prob)) +
     geom_ribbon(aes(ymin = lcb, ymax = ucb), alpha = 0.5)
 
 
-## ----cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE--------
+## ----cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE-------------
 quants <- ciTools::add_quantile(dat, fit, p = 0.90,
                                 name = c("quant", "lcb", "ucb"))
 
-## ----cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE--------
+## ----cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE-------------
 ggplot(quants, aes(x = temp, y = time)) +
     geom_point(aes(color = car)) +
     ggtitle("Estimated 90th percentile of condtional failure distribution, with CI") +
@@ -79,7 +79,7 @@ ggplot(quants, aes(x = temp, y = time)) +
     geom_line(aes(y = quant)) +
     geom_ribbon(aes(ymin = lcb, ymax = ucb), alpha = 0.5)
 
-## ----include=FALSE, cache= TRUE------------------------------------------
+## ----include=FALSE, cache= TRUE-----------------------------------------------
 path <- "./survreg_data"
 exp0 <- read_csv(paste0(path,"/","exponential_sim_expect_ci_censoredp00.csv"))
 exp1 <- read_csv(paste0(path,"/","exponential_sim_expect_ci_censoredp03.csv"))
@@ -109,7 +109,7 @@ weibull_dat <- rbind(weibull0, weibull1, weibull2) %>%
     dplyr::select(-c(scale))
 ci_dat <- rbind(exp_dat, loglog_dat, lognorm_dat, weibull_dat)
 
-## ----fig.width=8, fig.height=8, echo = FALSE, cache= TRUE----------------
+## ----fig.width=8, fig.height=8, echo = FALSE, cache= TRUE---------------------
 ggplot(filter(ci_dat), aes(x=sample_size, y=cov_prob)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
@@ -124,7 +124,7 @@ ggplot(filter(ci_dat), aes(x=sample_size, y=cov_prob)) +
     facet_grid(distr~censoredp)
 
 
-## ----fig.width=8, fig.height=8, echo=FALSE, cache= TRUE------------------
+## ----fig.width=8, fig.height=8, echo=FALSE, cache= TRUE-----------------------
 ggplot(filter(ci_dat), aes(x=sample_size, y=cov_prob)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
@@ -139,7 +139,7 @@ ggplot(filter(ci_dat), aes(x=sample_size, y=cov_prob)) +
     geom_hline(aes(yintercept = 0.90), colour="#BB0000", linetype="dashed", size = 1) +
     facet_grid(distr~censoredp)
 
-## ----fig.width=8, fig.height=8, echo = FALSE, cache= TRUE----------------
+## ----fig.width=8, fig.height=8, echo = FALSE, cache= TRUE---------------------
 ggplot(filter(ci_dat), aes(x=sample_size, y=int_width)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
@@ -153,7 +153,7 @@ ggplot(filter(ci_dat), aes(x=sample_size, y=int_width)) +
     geom_hline(aes(yintercept = 0.0), colour="blue", linetype="dashed", size = 1) +
     facet_grid(distr~censoredp)
 
-## ---- include = FALSE, cache= TRUE, warning = FALSE----------------------
+## ---- include = FALSE, cache= TRUE, warning = FALSE---------------------------
 expp0 <- read_csv(paste0(path,"/","exponential_sim_prob_ci_censoredp00.csv"))
 expp1 <- read_csv(paste0(path,"/","exponential_sim_prob_ci_censoredp03.csv"))
 expp2 <- read_csv(paste0(path,"/","exponential_sim_prob_ci_censoredp05.csv"))
@@ -225,7 +225,7 @@ ggplot(filter(prob_dat), aes(x=sample_size, y=int_width)) +
     geom_hline(aes(yintercept = 0.0), colour="blue", linetype="dashed", size = 1) +
     facet_grid(distr~censoredp)
 
-## ----include=FALSE, cache= TRUE------------------------------------------
+## ----include=FALSE, cache= TRUE-----------------------------------------------
 exppi0 <- read_csv(paste0(path,"/","exponential_sim_pi_censoredp00.csv"))
 exppi1 <- read_csv(paste0(path,"/","exponential_sim_pi_censoredp03.csv"))
 exppi2 <- read_csv(paste0(path,"/","exponential_sim_pi_censoredp05.csv"))
@@ -254,7 +254,7 @@ weibullpi_dat <- rbind(weibullpi0, weibullpi1, weibullpi2) %>%
     dplyr::select(-c(scale))
 pi_dat <- rbind(exppi_dat, loglogpi_dat, lognormpi_dat, weibullpi_dat)
 
-## ----fig.width=8, fig.height=8, echo=FALSE, cache= TRUE------------------
+## ----fig.width=8, fig.height=8, echo=FALSE, cache= TRUE-----------------------
 ggplot(filter(pi_dat), aes(x=sample_size, y=cov_prob)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
@@ -272,7 +272,7 @@ ggplot(filter(pi_dat), aes(x=sample_size, y=cov_prob)) +
     geom_hline(aes(yintercept = 0.90), colour="#BB0000", linetype="dashed", size = 1) +
     facet_grid(distr~censoredp)
 
-## ----fig.width=8, fig.height=8, echo = FALSE, cache= TRUE----------------
+## ----fig.width=8, fig.height=8, echo = FALSE, cache= TRUE---------------------
 ggplot(filter(pi_dat), aes(x=sample_size, y=cov_prob)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
@@ -287,7 +287,7 @@ ggplot(filter(pi_dat), aes(x=sample_size, y=cov_prob)) +
     geom_hline(aes(yintercept = 0.90), colour="#BB0000", linetype="dashed", size = 1) +
     facet_grid(distr~censoredp)
 
-## ----fig.width=8, fig.height=5, echo = FALSE, cache= TRUE----------------
+## ----fig.width=8, fig.height=5, echo = FALSE, cache= TRUE---------------------
 ggplot(filter(pi_dat, distr == "Exponential"), aes(x=sample_size, y=int_width)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
@@ -301,7 +301,7 @@ ggplot(filter(pi_dat, distr == "Exponential"), aes(x=sample_size, y=int_width)) 
     scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
     facet_wrap(~censoredp)
 
-## ----fig.width=8, fig.height=5, echo = FALSE, cache= TRUE----------------
+## ----fig.width=8, fig.height=5, echo = FALSE, cache= TRUE---------------------
 ggplot(filter(pi_dat, distr == "Loglogistic"), aes(x=sample_size, y=int_width)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
@@ -315,7 +315,7 @@ ggplot(filter(pi_dat, distr == "Loglogistic"), aes(x=sample_size, y=int_width)) 
     scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
     facet_wrap(~censoredp)
 
-## ----fig.width=8, fig.height=5, echo = FALSE, cache= TRUE----------------
+## ----fig.width=8, fig.height=5, echo = FALSE, cache= TRUE---------------------
 ggplot(filter(pi_dat, distr == "Lognormal"), aes(x=sample_size, y=int_width)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
@@ -329,7 +329,7 @@ ggplot(filter(pi_dat, distr == "Lognormal"), aes(x=sample_size, y=int_width)) +
     scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
     facet_wrap(~censoredp)
 
-## ----fig.width=8, fig.height=5, echo = FALSE, cache= TRUE----------------
+## ----fig.width=8, fig.height=5, echo = FALSE, cache= TRUE---------------------
 ggplot(filter(pi_dat, distr == "Weibull"), aes(x=sample_size, y=int_width)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
@@ -343,6 +343,6 @@ ggplot(filter(pi_dat, distr == "Weibull"), aes(x=sample_size, y=int_width)) +
     scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
     facet_wrap(~censoredp)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 sessionInfo()
 

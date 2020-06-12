@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <meta name="author" content="Matthew Avery" />
 
@@ -19,7 +19,7 @@
 
 
 <style type="text/css">code{white-space: pre;}</style>
-<style type="text/css">
+<style type="text/css" data-origin="pandoc">
 a.sourceLine { display: inline-block; line-height: 1.25; }
 a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
 a.sourceLine:empty { height: 1.2em; position: absolute; }
@@ -83,7 +83,29 @@ code span.st { color: #4070a0; } /* String */
 code span.va { color: #19177c; } /* Variable */
 code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
 </style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 
 
 
@@ -97,9 +119,6 @@ padding-right: 2em;
 font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 font-size: 14px;
 line-height: 1.35;
-}
-#header {
-text-align: center;
 }
 #TOC {
 clear: both;
@@ -268,8 +287,12 @@ code > span.st { color: #d14; }
 code > span.co { color: #888888; font-style: italic; } 
 code > span.ot { color: #007020; } 
 code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
 </style>
+
+
+
 
 </head>
 
@@ -279,12 +302,13 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 
 <h1 class="title toc-ignore">Binomial Regression with <code>ciTools</code></h1>
-<h4 class="author"><em>Matthew Avery</em></h4>
-<h4 class="date"><em>11 October 2017</em></h4>
+<h4 class="author">Matthew Avery</h4>
+<h4 class="date">11 October 2017</h4>
 
 
 
-<p>##Logistic regression with binomial data</p>
+<div id="logistic-regression-with-binomial-data" class="section level2">
+<h2>Logistic regression with binomial data</h2>
 <p>Logistic regression is most commonly used with a Bernoulli response. If <span class="math inline">\(Y \sim Bernoulli(p)\)</span>, then <span class="math inline">\(P(Y = 1) = p = 1 - P(Y = 0)\)</span>. Logistic regression can be used to estimate <span class="math inline">\(p|\textbf{x}\)</span> where <span class="math inline">\(\textbf{x}\)</span> is a collection of predictor variables. This is accomplished by assuming the relationship</p>
 <p><span class="math display">\[log(\frac{p}{1-p}) = \textbf{x}\beta\]</span></p>
 <p>and then choosing <span class="math inline">\(\beta\)</span> to maximize the joint likelihood:</p>
@@ -295,7 +319,9 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <p>From this, we can see that by setting <span class="math inline">\(n = 1\)</span>, we recover the Bernoulli PMF.</p>
 <p>Since the binomial distribution is a generalization of the Bernoulli distribution, it stands to reason that it may be possible to generalize logistic regression for Bernoulli variables to binomial variables. Indeed, this is the case, and it turns out it is relatively easy. Using the logit link function again, maximize the joint likelihood:</p>
 <p><span class="math display">\[\Pi_i {y_i \choose n_i} p_i^{y_i}(1-p_i)^{(1-y_i)}\]</span></p>
-<p>##Binomial regression in R</p>
+</div>
+<div id="binomial-regression-in-r" class="section level2">
+<h2>Binomial regression in R</h2>
 <p>R is also capable of fitting binomial regression models using <code>glm</code> with <code>family = &quot;binomial&quot;</code>. However, there are a few syntactic quirks. First, in the model statement, the response variable must be given as a proportion of successes for a given run. This can be done either by providing the proportions as a column in the data matrix or by specifying a ratio of the number of successes to the number of attempts. An example here might be instructive.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">set.seed</span>(<span class="dv">20171011</span>)</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(tidyverse)</a>
@@ -381,14 +407,19 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <p>For example, consider prediction intervals. These are used to quantify the observation-to-observation variability and estimate its range. For a Bernoulli variable, only two values are possible, so this is not particularly meaningful – the prediction interval will always be <span class="math inline">\([0,1]\)</span>. Quantiles are similarly problematic. And probability estimates (that is, <span class="math inline">\(P(Y&gt;y|x)\)</span>) are equivalent to estimates of <span class="math inline">\(p\)</span> or <span class="math inline">\(1-p\)</span> . Thus, asking for any of these will produce either an error (in the case of <code>add_pi.glm(family = &quot;binomial)</code> or <code>add_quantiles(family = &quot;binomial)</code>) or a warning (in the case of <code>add_probs.glm(family = &quot;binomial&quot;)</code>).</p>
 <p>For a binomial response, on the other hand, each of these functions produce meaningful output. Binomial response variables can take more than two values, making it sensible to consider prediction intervals, quantiles, or probabilities. For example, it may be interesting to consider the 90 percent quantile for a binomial regression:</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw">add_quantile</span>(tb, fit, <span class="dt">p =</span> <span class="fl">0.9</span>)</a></code></pre></div>
-<pre><code>## Warning in add_quantile.glm(tb, fit, p = 0.9): Treating weights as
-## indicating the number of trials for a binomial regression where the
-## response is the proportion of successes</code></pre>
+<pre><code>## Warning in add_quantile.glm(tb, fit, p = 0.9): Treating weights as indicating
+## the number of trials for a binomial regression where the response is the
+## proportion of successes</code></pre>
 <pre><code>## Warning in add_quantile.glm(tb, fit, p = 0.9): The response variable is not
 ## continuous so Prediction Intervals are approximate</code></pre>
-<pre><code>## Warning in sim_quantile_other(tb, fit, p, name, yhatName, nSims): For
-## binomial models, add_quantile's column of fitted values reflect E(Y|X)
-## rather than typical default for logistic regression, pHat</code></pre>
+<pre><code>## Warning in sim_quantile_other(tb, fit, p, name, yhatName, nSims): For binomial
+## models, add_quantile's column of fitted values reflect E(Y|X) rather than
+## typical default for logistic regression, pHat</code></pre>
+<pre><code>## Warning: `as_data_frame()` is deprecated as of tibble 2.0.0.
+## Please use `as_tibble()` instead.
+## The signature and semantics have changed, see `?as_tibble`.
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_warnings()` to see where this warning was generated.</code></pre>
 <pre><code>## # A tibble: 30 x 5
 ##          x     n     y  pred quantile0.9
 ##      &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;dbl&gt;       &lt;int&gt;
@@ -405,9 +436,15 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 ## # ... with 20 more rows</code></pre>
 <p>There is a lot to unpack here, including three warning messages. Let’s consider the output first. Unlike when we use <code>add_ci.glm</code>, the <code>pred</code> column includes the predicted values <span class="math inline">\(E(Y|\boldsymbol{x})\)</span> rather than the estimated probability of success <span class="math inline">\(\hat{p}|\boldsymbol{x}\)</span>.</p>
 <p>Next, there are three warnings. None of these indicate that anything has gone wrong. Rather, they are included to ensure that users understand the output they’re given. The first warning makes it clear to the user that the <code>weights</code> argument is assumed to indicate that they’re doing binomial rather than weighted Bernoulli regression. The second warning informs users that the estimated interval is approximate. This is because the current method used by <code>ciTools</code> for GLMs is based on simulation, and because <code>ciTools</code> forces quantile estimates to lie in the support set of the response distribution. The final warning points out that the <code>pred</code> column refers to the fitted values rather than estimated probability of success, which was mentioned in the previous paragraph.</p>
-<p>##Summary</p>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
 <p>Logistic regression can be used for both Bernoulli and Binomial response variables, and <code>glm</code> supports both. <code>ciTools</code> differentiates between the two based on whether the user has included a column in the <code>weights</code> argument. Aside from <code>add_ci</code>, none of the functions in <code>ciTools</code> produce useful information for Bernoulli response variables. For Binomial response variables, all of these functions produce useful information, though error messages are included to ensure that users understand the output presented.</p>
+</div>
 
+
+
+<!-- code folding -->
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
