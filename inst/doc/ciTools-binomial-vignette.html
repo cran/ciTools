@@ -301,7 +301,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<h1 class="title toc-ignore">Binomial Regression with <code>ciTools</code></h1>
+<h1 class="title toc-ignore">Binomial Regression with ciTools</h1>
 <h4 class="author">Matthew Avery</h4>
 <h4 class="date">11 October 2017</h4>
 
@@ -324,116 +324,96 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h2>Binomial regression in R</h2>
 <p>R is also capable of fitting binomial regression models using <code>glm</code> with <code>family = &quot;binomial&quot;</code>. However, there are a few syntactic quirks. First, in the model statement, the response variable must be given as a proportion of successes for a given run. This can be done either by providing the proportions as a column in the data matrix or by specifying a ratio of the number of successes to the number of attempts. An example here might be instructive.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">set.seed</span>(<span class="dv">20171011</span>)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(tidyverse)</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw">library</span>(ciTools)</a>
-<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="kw">library</span>(broom)</a></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">tb &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(dplyr)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw">library</span>(ciTools)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2">  <span class="dt">x =</span> <span class="kw">runif</span>(<span class="dv">30</span>, <span class="dv">-1</span>, <span class="dv">1</span>),</a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">  <span class="dt">n =</span> <span class="kw">rbinom</span>(<span class="dv">30</span>, <span class="dv">6</span>, <span class="fl">.8</span>)</a>
-<a class="sourceLine" id="cb2-4" data-line-number="4">  ) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">y =</span> <span class="kw">rbinom</span>(<span class="dv">30</span>, n, (<span class="kw">exp</span>(x)<span class="op">/</span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="kw">exp</span>(x)))))</a></code></pre></div>
-<p>Consider the data set, <code>tb</code>, given below.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">tb</a></code></pre></div>
-<pre><code>## # A tibble: 30 x 3
-##          x     n     y
-##      &lt;dbl&gt; &lt;int&gt; &lt;int&gt;
-##  1 -0.0113     5     1
-##  2 -0.264      4     2
-##  3 -0.814      4     0
-##  4  0.556      4     3
-##  5  0.659      6     3
-##  6  0.900      4     3
-##  7 -0.906      6     0
-##  8  0.0408     5     1
-##  9 -0.871      4     3
-## 10 -0.846      4     1
-## # ... with 20 more rows</code></pre>
+<a class="sourceLine" id="cb2-3" data-line-number="3">  <span class="dt">n =</span> <span class="kw">rbinom</span>(<span class="dv">30</span>, <span class="dv">6</span>, <span class="fl">.8</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">y =</span> <span class="kw">rbinom</span>(<span class="dv">30</span>, n, (<span class="kw">exp</span>(x)<span class="op">/</span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="kw">exp</span>(x)))))</a></code></pre></div>
+<p>Consider the data set, <code>df</code>, given below.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">head</span>(df)</a></code></pre></div>
+<pre><code>##             x n y
+## 1 -0.01132681 5 1
+## 2 -0.26414193 4 2
+## 3 -0.81380816 4 0
+## 4  0.55575400 4 3
+## 5  0.65899013 6 3
+## 6  0.89954037 4 3</code></pre>
 <p>Here, <span class="math inline">\(x\)</span> is some predictor variable related to the number of successes, <span class="math inline">\(y\)</span>, for the given number of attempts, <span class="math inline">\(n\)</span>. We can fit a logistic regression to this data to estimate this relationship:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">glm</span>(y<span class="op">/</span>n <span class="op">~</span><span class="st"> </span>x, <span class="dt">data =</span> tb, <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span>, <span class="dt">weights =</span> n) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">tidy</span>()</a></code></pre></div>
-<pre><code>## # A tibble: 2 x 5
-##   term        estimate std.error statistic p.value
-##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
-## 1 (Intercept)    0.104     0.177     0.589 0.556  
-## 2 x              0.945     0.316     2.99  0.00278</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">glm</span>(y<span class="op">/</span>n <span class="op">~</span><span class="st"> </span>x, <span class="dt">data =</span> df, <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span>, <span class="dt">weights =</span> n)</a></code></pre></div>
+<pre><code>## 
+## Call:  glm(formula = y/n ~ x, family = &quot;binomial&quot;, data = df, weights = n)
+## 
+## Coefficients:
+## (Intercept)            x  
+##      0.1041       0.9450  
+## 
+## Degrees of Freedom: 29 Total (i.e. Null);  28 Residual
+## Null Deviance:       51.94 
+## Residual Deviance: 42.44     AIC: 93.45</code></pre>
 <p>We get the same results using different syntax:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">tbProb &lt;-<span class="st"> </span><span class="kw">mutate</span>(tb, <span class="dt">prob =</span> y<span class="op">/</span>n)</a>
-<a class="sourceLine" id="cb7-2" data-line-number="2">tbProb</a></code></pre></div>
-<pre><code>## # A tibble: 30 x 4
-##          x     n     y  prob
-##      &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;dbl&gt;
-##  1 -0.0113     5     1  0.2 
-##  2 -0.264      4     2  0.5 
-##  3 -0.814      4     0  0   
-##  4  0.556      4     3  0.75
-##  5  0.659      6     3  0.5 
-##  6  0.900      4     3  0.75
-##  7 -0.906      6     0  0   
-##  8  0.0408     5     1  0.2 
-##  9 -0.871      4     3  0.75
-## 10 -0.846      4     1  0.25
-## # ... with 20 more rows</code></pre>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw">glm</span>(prob <span class="op">~</span><span class="st"> </span>x, <span class="dt">data =</span> tbProb, <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span>, <span class="dt">weights =</span> n) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">tidy</span>()</a></code></pre></div>
-<pre><code>## # A tibble: 2 x 5
-##   term        estimate std.error statistic p.value
-##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
-## 1 (Intercept)    0.104     0.177     0.589 0.556  
-## 2 x              0.945     0.316     2.99  0.00278</code></pre>
-<p>Notably, these fitted values are equivalent to what we would get if we were to transform each of our binomial responses into equivalent sets of Bernoulli trials. For example, the first observation in <code>tb</code> is a single success out of 5 attempts with a covariate of -0.011. Another way to think of this is five Bernoulli trials, one successful, four unsuccessful, all with a covariate value of -0.011.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">dfProb &lt;-<span class="st"> </span><span class="kw">mutate</span>(df, <span class="dt">prob =</span> y<span class="op">/</span>n)</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="kw">head</span>(dfProb)</a></code></pre></div>
+<pre><code>##             x n y prob
+## 1 -0.01132681 5 1 0.20
+## 2 -0.26414193 4 2 0.50
+## 3 -0.81380816 4 0 0.00
+## 4  0.55575400 4 3 0.75
+## 5  0.65899013 6 3 0.50
+## 6  0.89954037 4 3 0.75</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw">glm</span>(prob <span class="op">~</span><span class="st"> </span>x, <span class="dt">data =</span> dfProb, <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span>, <span class="dt">weights =</span> n)</a></code></pre></div>
+<pre><code>## 
+## Call:  glm(formula = prob ~ x, family = &quot;binomial&quot;, data = dfProb, weights = n)
+## 
+## Coefficients:
+## (Intercept)            x  
+##      0.1041       0.9450  
+## 
+## Degrees of Freedom: 29 Total (i.e. Null);  28 Residual
+## Null Deviance:       51.94 
+## Residual Deviance: 42.44     AIC: 93.45</code></pre>
+<p>Notably, these fitted values are equivalent to what we would get if we were to transform each of our binomial responses into equivalent sets of Bernoulli trials. For example, the first observation in <code>df</code> is a single success out of 5 attempts with a covariate of -0.011. Another way to think of this is five Bernoulli trials, one successful, four unsuccessful, all with a covariate value of -0.011.</p>
 <p>For example:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">tbTall</a></code></pre></div>
-<pre><code>## # A tibble: 140 x 2
-##          x     y
-##      &lt;dbl&gt; &lt;dbl&gt;
-##  1 -0.0113     1
-##  2 -0.0113     0
-##  3 -0.0113     0
-##  4 -0.0113     0
-##  5 -0.0113     0
-##  6 -0.264      1
-##  7 -0.264      1
-##  8 -0.264      0
-##  9 -0.264      0
-## 10 -0.814      0
-## # ... with 130 more rows</code></pre>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw">glm</span>(y <span class="op">~</span><span class="st"> </span>x, <span class="dt">data =</span> tbTall, <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">tidy</span>()</a></code></pre></div>
-<pre><code>## # A tibble: 2 x 5
-##   term        estimate std.error statistic p.value
-##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
-## 1 (Intercept)    0.104     0.177     0.589 0.556  
-## 2 x              0.945     0.316     2.99  0.00278</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw">head</span>(dfTall)</a></code></pre></div>
+<pre><code>##             x y
+## 1 -0.01132681 1
+## 2 -0.01132681 0
+## 3 -0.01132681 0
+## 4 -0.01132681 0
+## 5 -0.01132681 0
+## 6 -0.26414193 1</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw">glm</span>(y <span class="op">~</span><span class="st"> </span>x, <span class="dt">data =</span> dfTall, <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span>)</a></code></pre></div>
+<pre><code>## 
+## Call:  glm(formula = y ~ x, family = &quot;binomial&quot;, data = dfTall)
+## 
+## Coefficients:
+## (Intercept)            x  
+##      0.1041       0.9450  
+## 
+## Degrees of Freedom: 139 Total (i.e. Null);  138 Residual
+## Null Deviance:       194.1 
+## Residual Deviance: 184.6     AIC: 188.6</code></pre>
 <p>Note that while the degrees of freedom, information criteria, etc. are different, the coefficient estimates are the same, as are the standard errors for these coefficients.</p>
 <p>##Using <code>ciTools</code> for binomial regression</p>
 <p><code>ciTools</code> supports logistic regression with both Bernoulli and binomial response variables. For both types, <code>add_ci</code> has intuitive and expected functionality. It produces a point estimate and confidence intervals around the estimated probability of success. However, the other functions of <code>ciTools</code> (<code>add_pi</code>, <code>add_quantile</code>, and <code>add_probs</code>) produce different behaviors, because prediction intervals, quantiles, and probability values are not very useful for Bernoulli variables.</p>
 <p>For example, consider prediction intervals. These are used to quantify the observation-to-observation variability and estimate its range. For a Bernoulli variable, only two values are possible, so this is not particularly meaningful – the prediction interval will always be <span class="math inline">\([0,1]\)</span>. Quantiles are similarly problematic. And probability estimates (that is, <span class="math inline">\(P(Y&gt;y|x)\)</span>) are equivalent to estimates of <span class="math inline">\(p\)</span> or <span class="math inline">\(1-p\)</span> . Thus, asking for any of these will produce either an error (in the case of <code>add_pi.glm(family = &quot;binomial)</code> or <code>add_quantiles(family = &quot;binomial)</code>) or a warning (in the case of <code>add_probs.glm(family = &quot;binomial&quot;)</code>).</p>
 <p>For a binomial response, on the other hand, each of these functions produce meaningful output. Binomial response variables can take more than two values, making it sensible to consider prediction intervals, quantiles, or probabilities. For example, it may be interesting to consider the 90 percent quantile for a binomial regression:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw">add_quantile</span>(tb, fit, <span class="dt">p =</span> <span class="fl">0.9</span>)</a></code></pre></div>
-<pre><code>## Warning in add_quantile.glm(tb, fit, p = 0.9): Treating weights as indicating
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw">head</span>(<span class="kw">add_quantile</span>(df, fit, <span class="dt">p =</span> <span class="fl">0.9</span>))</a></code></pre></div>
+<pre><code>## Warning in add_quantile.glm(df, fit, p = 0.9): Treating weights as indicating
 ## the number of trials for a binomial regression where the response is the
 ## proportion of successes</code></pre>
-<pre><code>## Warning in add_quantile.glm(tb, fit, p = 0.9): The response variable is not
+<pre><code>## Warning in add_quantile.glm(df, fit, p = 0.9): The response variable is not
 ## continuous so Prediction Intervals are approximate</code></pre>
-<pre><code>## Warning in sim_quantile_other(tb, fit, p, name, yhatName, nSims): For binomial
+<pre><code>## Warning in sim_quantile_other(df, fit, p, name, yhatName, nSims): For binomial
 ## models, add_quantile's column of fitted values reflect E(Y|X) rather than
 ## typical default for logistic regression, pHat</code></pre>
-<pre><code>## Warning: `as_data_frame()` is deprecated as of tibble 2.0.0.
-## Please use `as_tibble()` instead.
-## The signature and semantics have changed, see `?as_tibble`.
-## This warning is displayed once every 8 hours.
-## Call `lifecycle::last_warnings()` to see where this warning was generated.</code></pre>
-<pre><code>## # A tibble: 30 x 5
-##          x     n     y  pred quantile0.9
-##      &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;dbl&gt;       &lt;int&gt;
-##  1 -0.0113     5     1  2.62           4
-##  2 -0.264      4     2  1.85           3
-##  3 -0.814      4     0  1.36           3
-##  4  0.556      4     3  2.61           4
-##  5  0.659      6     3  4.04           6
-##  6  0.900      4     3  2.89           4
-##  7 -0.906      6     0  1.92           4
-##  8  0.0408     5     1  2.68           4
-##  9 -0.871      4     3  1.31           3
-## 10 -0.846      4     1  1.33           3
-## # ... with 20 more rows</code></pre>
+<pre><code>##             x n y     pred quantile0.9
+## 1 -0.01132681 5 1 2.616636           4
+## 2 -0.26414193 4 2 1.854723           3
+## 3 -0.81380816 4 0 1.358501           3
+## 4  0.55575400 4 3 2.609291           4
+## 5  0.65899013 6 3 4.044646           6
+## 6  0.89954037 4 3 2.887789           4</code></pre>
 <p>There is a lot to unpack here, including three warning messages. Let’s consider the output first. Unlike when we use <code>add_ci.glm</code>, the <code>pred</code> column includes the predicted values <span class="math inline">\(E(Y|\boldsymbol{x})\)</span> rather than the estimated probability of success <span class="math inline">\(\hat{p}|\boldsymbol{x}\)</span>.</p>
 <p>Next, there are three warnings. None of these indicate that anything has gone wrong. Rather, they are included to ensure that users understand the output they’re given. The first warning makes it clear to the user that the <code>weights</code> argument is assumed to indicate that they’re doing binomial rather than weighted Bernoulli regression. The second warning informs users that the estimated interval is approximate. This is because the current method used by <code>ciTools</code> for GLMs is based on simulation, and because <code>ciTools</code> forces quantile estimates to lie in the support set of the response distribution. The final warning points out that the <code>pred</code> column refers to the fitted values rather than estimated probability of success, which was mentioned in the previous paragraph.</p>
 </div>

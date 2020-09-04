@@ -300,21 +300,22 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<h1 class="title toc-ignore">Accelerated Failure Time Models with <code>ciTools</code></h1>
+<h1 class="title toc-ignore">Accelerated Failure Time Models with ciTools</h1>
 <h4 class="author">John Haman</h4>
-<h4 class="date">12 June, 2020</h4>
+<h4 class="date">03 September, 2020</h4>
 
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(tidyverse)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(knitr)</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw">library</span>(ciTools)</a>
-<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="kw">library</span>(here)</a>
-<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="kw">set.seed</span>(<span class="dv">20180925</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(dplyr)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(ggplot2)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw">library</span>(knitr)</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="kw">library</span>(ciTools)</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="kw">library</span>(here)</a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="kw">set.seed</span>(<span class="dv">20180925</span>)</a></code></pre></div>
 <p><em>Disclaimer:</em> <code>ciTools</code> makes three assumptions about your model:</p>
-<p>1 - no missing data in the “newdata” matrix, <code>tb</code>.</p>
+<p>1 - no missing data in the “newdata” dataframe, <code>df</code>.</p>
 <p>2 - distribution is one of weibull, lognormal, loglogistic, or exponential.</p>
-<p>3 - regression model is unweighted, and without random effects.</p>
+<p>3 - regression model is unweighted and without random effects.</p>
 <p>The purpose of this vignette is to introduce and discuss new <code>ciTools</code> capabilities for handling accelerated failure time (AFT) models. Some of the new AFT methods in <code>ciTools</code> are more informative than methods for previous models, and will inform future development decisions that will be made in <code>ciTools</code>. In particular, <code>ciTools</code> now supports intervals for estimated survival time probabilities and quantiles for a range of common AFTs.</p>
 <div id="the-accelerated-failure-time-model" class="section level2">
 <h2>The Accelerated Failure Time Model</h2>
@@ -408,7 +409,7 @@ S(T|X) = 1 - F_{Logistic} \left(
 </div>
 <div id="aft-uncertainty-intervals" class="section level2">
 <h2>AFT Uncertainty Intervals</h2>
-<p>In the analysis of AFT models, statisticians have several options for making predictions. <code>predict.survreg</code> for example, allows one to predict the median failure time, or any other quantile. These predictions have the same units as the original time scale (time to death or failure). Additionally, <code>predict.survreg</code> can also output the corresponding value of the linear predictor for a given point in the factor space.</p>
+<p>In the analysis of AFT models, statisticians have several options for making predictions. <code>predict.survreg</code> for example, allows one to predict the median failure time, or any other quantile. These predictions have the same units as the original time scale (time to death or failure). Additionally, <code>predict.survreg</code> can output the corresponding value of the linear predictor for a given point in the factor space.</p>
 <p><code>ciTools</code> hopes to clarify survival times prediction for AFT models by relegating prediction of the expected (mean) survival time to <code>add_ci.survreg</code>, and prediction of the median (or any quantile) of the survival time distribution to <code>add_quantile.survreg</code>. Thus <code>add_ci.survreg</code> is in line with other <code>add_ci</code> S3 methods provided by <code>ciTools</code> by only providing confidence intervals for the expected response conditioned on the predictors.</p>
 <p>There are three popular methods for forming confidence intervals in this case: parametrically, using either the (1) delta method or (2) likelihood ratios, or (3) through a bootstrap resampling procedure. In <code>ciTools</code>, we generally favor parametric methods, except where it makes sense to include bootstrap methods as options, as is the case with many mixed effects models, where bootstrap methods are seen as less controversial than parametric interval methods.</p>
 <p>We have studied these three techniques for interval estimation, and found that the delta method offers the best combination of speed and accuracy for users. Therefore, the delta method is used as the basis of all interval estimation procedures in <code>ciTools</code> for AFT models. This is at odds with the recommendations of Meeker and Escobar in favor of likelihood based intervals, however we implement delta method based intervals as they are much easier to write for multivariate models and do not suffer from any convergence issues. Compared to bootstrap intervals, delta method intervals are faster and have similar probability coverage in many scenarios.</p>
@@ -490,6 +491,18 @@ S(T|X) = 1 - F_{Logistic} \left(
 <a class="sourceLine" id="cb6-2" data-line-number="2"><span class="st">    </span>ciTools<span class="op">::</span><span class="kw">add_pi</span>(fit, <span class="dt">names =</span> <span class="kw">c</span>(<span class="st">&quot;lpb&quot;</span>, <span class="st">&quot;upb&quot;</span>))</a></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw">kable</span>(<span class="kw">head</span>(with_ints))</a></code></pre></div>
 <table>
+<colgroup>
+<col width="9%"></col>
+<col width="6%"></col>
+<col width="12%"></col>
+<col width="8%"></col>
+<col width="10%"></col>
+<col width="9%"></col>
+<col width="9%"></col>
+<col width="12%"></col>
+<col width="10%"></col>
+<col width="9%"></col>
+</colgroup>
 <thead>
 <tr class="header">
 <th align="right">temp</th>
@@ -730,29 +743,29 @@ u(\hat{S}) = \log \left( \frac{\hat{S}}{1 - \hat{S}} \right)
 <p><img src="data:image/png;base64,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" /><!-- --></p>
 <!-- ## Medians -->
 <!-- ```{r, include = FALSE, cache= TRUE} -->
-<!-- expq0 <- read_csv(paste0(path,"/","exponential_sim_quantile_ci_censoredp00.csv")) -->
-<!-- expq1 <- read_csv(paste0(path,"/","exponential_sim_quantile_ci_censoredp03.csv")) -->
-<!-- expq2 <- read_csv(paste0(path,"/","exponential_sim_quantile_ci_censoredp05.csv")) -->
+<!-- expq0 <- read.csv(paste0(path,"/","exponential_sim_quantile_ci_censoredp00.csv")) -->
+<!-- expq1 <- read.csv(paste0(path,"/","exponential_sim_quantile_ci_censoredp03.csv")) -->
+<!-- expq2 <- read.csv(paste0(path,"/","exponential_sim_quantile_ci_censoredp05.csv")) -->
 <!-- expq_dat <- rbind(expq0, expq1, expq2) %>% -->
 <!--     mutate(distr = "Exponential") -->
-<!-- loglogq0 <- read_csv(paste0(path,"/", -->
+<!-- loglogq0 <- read.csv(paste0(path,"/", -->
 <!--                             "loglogistic_sim_quantile_ci_scale025_censoredp00.csv")) -->
-<!-- loglogq1 <- read_csv(paste0(path,"/", -->
+<!-- loglogq1 <- read.csv(paste0(path,"/", -->
 <!--                             "loglogistic_sim_quantile_ci_scale025_censoredp03.csv")) -->
-<!-- loglogq2 <- read_csv(paste0(path,"/", -->
+<!-- loglogq2 <- read.csv(paste0(path,"/", -->
 <!--                             "loglogistic_sim_quantile_ci_scale025_censoredp05.csv")) -->
 <!-- loglogq_dat <- rbind(loglogq0, loglogq1, loglogq2) %>% -->
 <!--     mutate(distr = "Loglogisic") %>% -->
 <!--     dplyr::select(-c(scale)) -->
-<!-- lognormq0 <- read_csv(paste0(path,"/","lognormal_sim_quantile_ci_scale2_censoredp00.csv")) -->
-<!-- lognormq1 <- read_csv(paste0(path,"/","lognormal_sim_quantile_ci_scale2_censoredp03.csv")) -->
-<!-- lognormq2 <- read_csv(paste0(path,"/","lognormal_sim_quantile_ci_scale2_censoredp05.csv")) -->
+<!-- lognormq0 <- read.csv(paste0(path,"/","lognormal_sim_quantile_ci_scale2_censoredp00.csv")) -->
+<!-- lognormq1 <- read.csv(paste0(path,"/","lognormal_sim_quantile_ci_scale2_censoredp03.csv")) -->
+<!-- lognormq2 <- read.csv(paste0(path,"/","lognormal_sim_quantile_ci_scale2_censoredp05.csv")) -->
 <!-- lognormq_dat <- rbind(lognormq0, lognormq1, lognormq2) %>% -->
 <!--     mutate(distr = "Lognormal") %>% -->
 <!--     dplyr::select(-c(scale)) -->
-<!-- weibullq0 <- read_csv(paste0(path,"/","weibull_sim_quantile_ci_scale2_censoredp00.csv")) -->
-<!-- weibullq1 <- read_csv(paste0(path,"/","weibull_sim_quantile_ci_scale2_censoredp03.csv")) -->
-<!-- weibullq2 <- read_csv(paste0(path,"/","weibull_sim_quantile_ci_scale2_censoredp05.csv")) -->
+<!-- weibullq0 <- read.csv(paste0(path,"/","weibull_sim_quantile_ci_scale2_censoredp00.csv")) -->
+<!-- weibullq1 <- read.csv(paste0(path,"/","weibull_sim_quantile_ci_scale2_censoredp03.csv")) -->
+<!-- weibullq2 <- read.csv(paste0(path,"/","weibull_sim_quantile_ci_scale2_censoredp05.csv")) -->
 <!-- weibullq_dat <- rbind(weibullq0, weibullq1, weibullq2) %>% -->
 <!--     mutate(distr = "Weibull") %>% -->
 <!--     dplyr::select(-c(scale)) -->
@@ -805,7 +818,7 @@ u(\hat{S}) = \log \left( \frac{\hat{S}}{1 - \hat{S}} \right)
 <p>Meeker, William Q., and Luis A. Escobar. Statistical methods for reliability data. John Wiley &amp; Sons, 2014. (Chapter 4, 8, and Appendix B)</p>
 <p>Harrell, Frank E. Regression modeling strategies. Springer, 2015. (Chapter 17)</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw">sessionInfo</span>()</a></code></pre></div>
-<pre><code>## R version 4.0.0 (2020-04-24)
+<pre><code>## R version 4.0.2 (2020-06-22)
 ## Platform: x86_64-w64-mingw32/x64 (64-bit)
 ## Running under: Windows 10 x64 (build 17763)
 ## 
@@ -822,29 +835,33 @@ u(\hat{S}) = \log \left( \frac{\hat{S}}{1 - \hat{S}} \right)
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] SPREDA_1.1      nlme_3.1-147    survival_3.1-12 here_0.1       
-##  [5] arm_1.11-1      lme4_1.1-23     Matrix_1.2-18   MASS_7.3-51.5  
-##  [9] knitr_1.28      broom_0.5.6     ciTools_0.5.2   forcats_0.5.0  
-## [13] stringr_1.4.0   dplyr_1.0.0     purrr_0.3.4     readr_1.3.1    
-## [17] tidyr_1.0.2     tibble_3.0.1    ggplot2_3.3.0   tidyverse_1.3.0
+##  [1] SPREDA_1.1      nlme_3.1-148    survival_3.1-12 here_0.1       
+##  [5] arm_1.11-2      lme4_1.1-23     Matrix_1.2-18   MASS_7.3-51.6  
+##  [9] knitr_1.29      ggplot2_3.3.2   ciTools_0.6.0   dplyr_1.0.1    
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] httr_1.4.1       jsonlite_1.6.1   splines_4.0.0    modelr_0.1.7    
-##  [5] assertthat_0.2.1 statmod_1.4.34   highr_0.8        cellranger_1.1.0
-##  [9] yaml_2.2.1       pillar_1.4.3     backports_1.1.6  lattice_0.20-41 
-## [13] glue_1.4.1       digest_0.6.25    rvest_0.3.5      minqa_1.2.4     
-## [17] colorspace_1.4-1 htmltools_0.4.0  pkgconfig_2.0.3  haven_2.2.0     
-## [21] scales_1.1.0     generics_0.0.2   farver_2.0.3     ellipsis_0.3.0  
-## [25] withr_2.2.0      cli_2.0.2        magrittr_1.5     crayon_1.3.4    
-## [29] readxl_1.3.1     evaluate_0.14    fs_1.4.1         fansi_0.4.1     
-## [33] xml2_1.3.2       tools_4.0.0      hms_0.5.3        lifecycle_0.2.0 
-## [37] munsell_0.5.0    reprex_0.3.0     compiler_4.0.0   rlang_0.4.6     
-## [41] grid_4.0.0       nloptr_1.2.2.1   rstudioapi_0.11  labeling_0.3    
-## [45] rmarkdown_2.1    boot_1.3-24      codetools_0.2-16 gtable_0.3.0    
-## [49] abind_1.4-5      DBI_1.1.0        R6_2.4.1         lubridate_1.7.8 
-## [53] utf8_1.1.4       rprojroot_1.3-2  stringi_1.4.6    Rcpp_1.0.4.6    
-## [57] vctrs_0.3.0      dbplyr_1.4.3     tidyselect_1.1.0 xfun_0.13       
-## [61] coda_0.19-3</code></pre>
+##  [1] Rcpp_1.0.5          lattice_0.20-41     png_0.1-7          
+##  [4] rprojroot_1.3-2     assertthat_0.2.1    digest_0.6.25      
+##  [7] utf8_1.1.4          R6_2.4.1            backports_1.1.8    
+## [10] evaluate_0.14       coda_0.19-3         highr_0.8          
+## [13] pillar_1.4.6        rlang_0.4.7         rstudioapi_0.11    
+## [16] minqa_1.2.4         data.table_1.13.0   nloptr_1.2.2.2     
+## [19] rpart_4.1-15        checkmate_2.0.0     rmarkdown_2.3      
+## [22] labeling_0.3        splines_4.0.2       statmod_1.4.34     
+## [25] stringr_1.4.0       foreign_0.8-80      htmlwidgets_1.5.1  
+## [28] munsell_0.5.0       compiler_4.0.2      xfun_0.16          
+## [31] pkgconfig_2.0.3     base64enc_0.1-3     htmltools_0.5.0    
+## [34] nnet_7.3-14         tidyselect_1.1.0    tibble_3.0.3       
+## [37] gridExtra_2.3       htmlTable_2.0.1     codetools_0.2-16   
+## [40] Hmisc_4.4-1         fansi_0.4.1         crayon_1.3.4       
+## [43] withr_2.2.0         grid_4.0.2          gtable_0.3.0       
+## [46] lifecycle_0.2.0     magrittr_1.5        scales_1.1.1       
+## [49] cli_2.0.2           stringi_1.4.6       farver_2.0.3       
+## [52] latticeExtra_0.6-29 ellipsis_0.3.1      generics_0.0.2     
+## [55] vctrs_0.3.2         boot_1.3-25         Formula_1.2-3      
+## [58] RColorBrewer_1.1-2  tools_4.0.2         glue_1.4.1         
+## [61] purrr_0.3.4         jpeg_0.1-8.1        abind_1.4-5        
+## [64] yaml_2.2.1          colorspace_1.4-1    cluster_2.1.0</code></pre>
 </div>
 
 

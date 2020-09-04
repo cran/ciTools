@@ -1,5 +1,6 @@
 ## ----message=FALSE------------------------------------------------------------
-library(tidyverse)
+library(dplyr)
+library(ggplot2)
 library(ciTools)
 library(MASS)
 library(arm)
@@ -37,10 +38,10 @@ df4 <- filter(df, type == "bootstrap") %>%
 
 ## ----fig.width = 6, fig.heither = 4, fig.align = "center", echo = F-----------
 ggplot(df4, aes(x = x, y = y)) +
-    ggtitle("Logistic Regression") +
-    geom_jitter(height = 0.01) +
-    geom_ribbon(aes(ymin = lboot, ymax = uboot), alpha = 0.4, fill = "red") +
-    geom_ribbon(aes(ymin = lwr, ymax = upr), alpha = 0.4, fill = "royalblue") +
+  ggtitle("Logistic Regression") +
+  geom_jitter(height = 0.01) +
+  geom_ribbon(aes(ymin = lboot, ymax = uboot), alpha = 0.4, fill = "red") +
+  geom_ribbon(aes(ymin = lwr, ymax = upr), alpha = 0.4, fill = "royalblue") +
   geom_line(aes(x = x , y = pred...3), size = 2)
 
 ## -----------------------------------------------------------------------------
@@ -51,9 +52,9 @@ fit <- glm(y ~ x , family = poisson(link = "log"))
 
 ## -----------------------------------------------------------------------------
 df_ints <- df %>%
-    add_ci(fit, names = c("lcb", "ucb"), alpha = 0.1) %>%
-    add_pi(fit, names = c("lpb", "upb"), alpha = 0.1, nSims = 20000) %>%
-    print()
+  add_ci(fit, names = c("lcb", "ucb"), alpha = 0.1) %>%
+  add_pi(fit, names = c("lpb", "upb"), alpha = 0.1, nSims = 20000) %>%
+  head()
 
 ## ----fig.width = 6, fig.heither = 4, fig.align = "center"---------------------
 df_ints %>%
@@ -66,9 +67,9 @@ df_ints %>%
 
 ## -----------------------------------------------------------------------------
 df %>%
-    add_probs(fit, q = 10) %>%
-    add_quantile(fit, p = 0.4) %>%
-    print()
+  add_probs(fit, q = 10) %>%
+  add_quantile(fit, p = 0.4) %>%
+  head()
 
 ## -----------------------------------------------------------------------------
 x <- runif(n = 100, min = 0, max = 2)
@@ -93,10 +94,10 @@ ggplot(df_ints, aes(x = x, y = y)) +
     geom_ribbon(aes(ymin = lpb, ymax = upb), alpha = 0.2)
 
 ## ----message=FALSE------------------------------------------------------------
-pois <- read_csv("pois_pi_results.csv") %>%
-    dplyr::select(-total_time) %>%
-    rename(nominal_level = level) %>%
-    dplyr::select(sample_size, everything())
+pois <- read.csv("pois_pi_results.csv") %>%
+  dplyr::select(-total_time) %>%
+  rename(nominal_level = level) %>%
+  dplyr::select(sample_size, everything())
 knitr::kable(pois)
 
 ## ----fig.width = 6, fig.heither = 4, fig.align="center", echo = F-------------
@@ -133,10 +134,10 @@ ggplot(pois, aes(x=sample_size, y=int_width)) +
     geom_point(size = 1.5)
 
 ## ----message=FALSE------------------------------------------------------------
-neg_bin <- read_csv("negbin_pi_results.csv") %>%
-    dplyr::select(-total_time) %>%
-    rename(nominal_level = level) %>%
-    dplyr::select(sample_size, everything())
+neg_bin <- read.csv("negbin_pi_results.csv") %>%
+  dplyr::select(-total_time) %>%
+  rename(nominal_level = level) %>%
+  dplyr::select(sample_size, everything())
 knitr::kable(neg_bin)
 
 ## ----fig.width = 6, fig.heither = 4, fig.align="center", echo = F-------------
@@ -173,10 +174,11 @@ ggplot(neg_bin, aes(x=sample_size, y=int_width)) +
     geom_point(size = 1.5)
 
 ## ----message=FALSE------------------------------------------------------------
-gam <- read_csv("gamma_pi_results.csv") %>%
-    dplyr::select(-total_time) %>%
-    rename(nominal_level = level) %>%
-    dplyr::select(sample_size, everything())
+gam <- read.csv("gamma_pi_results.csv") %>%
+  dplyr::select(-total_time) %>%
+  rename(nominal_level = level) %>%
+  dplyr::select(sample_size, everything())
+
 knitr::kable(gam)
 
 ## ----fig.width = 6, fig.heither = 4, fig.align="center", echo = F-------------
@@ -213,10 +215,10 @@ ggplot(gam, aes(x=sample_size, y=int_width)) +
     geom_point(size = 1.5)
 
 ## ----message=FALSE------------------------------------------------------------
-norm_log <- read_csv("gaussian_pi_loglink_results.csv") %>%
-    dplyr::select(-total_time) %>%
-    rename(nominal_level = level) %>%
-    dplyr::select(sample_size, everything())
+norm_log <- read.csv("gaussian_pi_loglink_results.csv") %>%
+  dplyr::select(-total_time) %>%
+  rename(nominal_level = level) %>%
+  dplyr::select(sample_size, everything())
 knitr::kable(norm_log)
 
 ## ----fig.width = 6, fig.heither = 4, fig.align="center", echo = F-------------
